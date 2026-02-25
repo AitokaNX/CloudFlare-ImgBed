@@ -1,0 +1,4 @@
+# CloudFlare ImgBed Project Guidelines
+
+1. **Deployment Workflow**: This project uses Cloudflare Pages linked to the GitHub repository. Whenever you complete a feature or make requested modifications to the codebase (frontend or backend), you MUST automatically execute `git add .`, `git commit -m "Auto commit: <feature description>"`, and `git push` to trigger the Cloudflare deployment process. Do NOT ask the user to push the code themselves unless there is an authentication error.
+2. **Frontend Architecture**: The frontend source code is NOT in this repository. This repository only stores the compiled frontend (`index.html`, `js/`, `css/`). If you need to make non-trivial changes to the frontend Vue code, you must clone `https://github.com/MarSeventh/Sanyue-ImgHub.git` to a temporary directory, make changes, run `npm install` and `npm run build`, and copy the compiled files back to the root of this project before pushing.

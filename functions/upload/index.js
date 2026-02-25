@@ -144,6 +144,17 @@ async function processFileUpload(context, formdata = null) {
             .replace(/\/$/, '') // 移除末尾的/
         : '';
 
+    // 获取上传标签
+    let uploadTagsRaw = url.searchParams.get('tags') || formdata.get('tags') || '';
+    let uploadTags = [];
+    if (uploadTagsRaw) {
+        try {
+            uploadTags = JSON.parse(uploadTagsRaw);
+        } catch(e) {
+            uploadTags = uploadTagsRaw.split(',').map(tag => tag.trim()).filter(tag => tag);
+        }
+    }
+
     const metadata = {
         FileName: fileName,
         FileType: fileType,
@@ -154,7 +165,7 @@ async function processFileUpload(context, formdata = null) {
         TimeStamp: time,
         Label: "None",
         Directory: normalizedFolder === '' ? '' : normalizedFolder + '/',
-        Tags: []
+        Tags: uploadTags
     };
 
     let fileExt = fileName.split('.').pop(); // 文件扩展名

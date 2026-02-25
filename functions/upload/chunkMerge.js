@@ -143,6 +143,17 @@ async function handleChannelBasedMerge(context, uploadId, totalChunks, originalF
 
         const normalizedFolder = (url.searchParams.get('uploadFolder') || '').replace(/^\/+/, '').replace(/\/{2,}/g, '/').replace(/\/$/, '');
 
+        // 获取上传标签
+        let uploadTagsRaw = url.searchParams.get('tags') || request.formData?.get('tags') || (context.formdata && context.formdata.get('tags')) || '';
+        let uploadTags = [];
+        if (uploadTagsRaw) {
+            try {
+                uploadTags = JSON.parse(uploadTagsRaw);
+            } catch(e) {
+                uploadTags = uploadTagsRaw.split(',').map(tag => tag.trim()).filter(tag => tag);
+            }
+        }
+
         // 构建基础metadata
         const metadata = {
             FileName: originalFileName,
@@ -154,7 +165,7 @@ async function handleChannelBasedMerge(context, uploadId, totalChunks, originalF
             TimeStamp: Date.now(),
             Label: "None",
             Directory: normalizedFolder === '' ? '' : normalizedFolder + '/',
-            Tags: []
+            Tags: uploadTags
         };
 
         // 收集所有已上传的分块信息
