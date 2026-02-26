@@ -150,7 +150,7 @@ async function handleChannelBasedMerge(context, uploadId, totalChunks, originalF
             try {
                 uploadTags = JSON.parse(uploadTagsRaw);
             } catch(e) {
-                uploadTags = uploadTagsRaw.split(',').map(tag => tag.trim()).filter(tag => tag);
+                uploadTags = uploadTagsRaw.split(/[,，]/).map(tag => tag.trim()).filter(tag => tag);
             }
         }
 

@@ -35,8 +35,8 @@ export async function onRequest(context) {
     }
 
     // 处理标签参数
-    const includeTagsArray = includeTags ? includeTags.split(',').map(t => t.trim()).filter(t => t) : [];
-    const excludeTagsArray = excludeTags ? excludeTags.split(',').map(t => t.trim()).filter(t => t) : [];
+    const includeTagsArray = includeTags ? includeTags.split(/[,，]/).map(t => t.trim()).filter(t => t) : [];
+    const excludeTagsArray = excludeTags ? excludeTags.split(/[,，]/).map(t => t.trim()).filter(t => t) : [];
 
     // 处理目录参数
     if (dir.startsWith('/')) {
