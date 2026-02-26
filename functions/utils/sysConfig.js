@@ -20,13 +20,7 @@ async function filterChannelsByQuota(context, channels) {
 
     // 获取索引元数据（只需 1 次读取）
     const indexMeta = await getIndexMeta(context);
-    const monthlyStats = indexMeta.monthlyStats || {};
-    
-    // 获取当前的年份和月份 (格式 YYYY-MM)
-    const date = new Date();
-    const currentYearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-
-    const currentMonthChannelStats = monthlyStats[currentYearMonth] || {};
+    const channelStats = indexMeta.channelStats || {};
 
     const result = [];
     for (const channel of channels) {
@@ -37,8 +31,8 @@ async function filterChannelsByQuota(context, channels) {
         }
 
         try {
-            // 从索引元数据中获取该渠道【当月】的容量统计
-            const stats = currentMonthChannelStats[channel.name] || { usedMB: 0, fileCount: 0 };
+            // 从索引元数据中获取该渠道的容量统计
+            const stats = channelStats[channel.name] || { usedMB: 0, fileCount: 0 };
 
             const usedGB = stats.usedMB / 1024;
             const limitGB = channel.quota.limitGB;
@@ -48,7 +42,7 @@ async function filterChannelsByQuota(context, channels) {
             if ((usedGB / limitGB) * 100 < threshold) {
                 result.push(channel);
             } else {
-                console.log(`Channel ${channel.name} quota exceeded for month ${currentYearMonth}: ${usedGB.toFixed(2)}GB / ${limitGB}GB (${threshold}% threshold)`);
+                console.log(`Channel ${channel.name} quota exceeded: ${usedGB.toFixed(2)}GB / ${limitGB}GB (${threshold}% threshold)`);
             }
         } catch (error) {
             console.error(`Failed to check quota for channel ${channel.name}:`, error);

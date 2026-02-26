@@ -811,8 +811,7 @@ export async function getIndexMeta(context) {
                 success: false,
                 totalCount: 0,
                 totalSizeMB: 0,
-                channelStats: {},
-                monthlyStats: {}
+                channelStats: {}
             };
         }
 
@@ -822,7 +821,6 @@ export async function getIndexMeta(context) {
             totalCount: metadata.totalCount || 0,
             totalSizeMB: metadata.totalSizeMB || 0,
             channelStats: metadata.channelStats || {},
-            monthlyStats: metadata.monthlyStats || {},
             lastUpdated: metadata.lastUpdated
         };
     } catch (error) {
@@ -831,8 +829,7 @@ export async function getIndexMeta(context) {
             success: false,
             totalCount: 0,
             totalSizeMB: 0,
-            channelStats: {},
-            monthlyStats: {}
+            channelStats: {}
         };
     }
 }
