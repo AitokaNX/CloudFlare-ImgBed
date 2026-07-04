@@ -3,6 +3,7 @@ import { createResponse, getUploadIp, getIPAddress, selectConsistentChannel, bui
 import { retryFailedChunks, cleanupFailedMultipartUploads, checkChunkUploadStatuses, cleanupChunkData, cleanupUploadSession } from './chunkUpload';
 import { S3Client, CompleteMultipartUploadCommand } from "@aws-sdk/client-s3";
 import { getDatabase } from '../utils/databaseAdapter.js';
+import { parseTagsInput } from '../utils/tagHelpers.js';
 
 // 处理分块合并
 export async function handleChunkMerge(context) {
@@ -144,17 +145,10 @@ async function handleChannelBasedMerge(context, uploadId, totalChunks, originalF
         const normalizedFolder = (url.searchParams.get('uploadFolder') || '').replace(/^\/+/, '').replace(/\/{2,}/g, '/').replace(/\/$/, '');
 
         // 获取上传标签
-        let uploadTagsRaw = url.searchParams.get('tags') || request.formData?.get('tags') || (context.formdata && context.formdata.get('tags')) || '';
-        let uploadTags = [];
-        if (uploadTagsRaw) {
-            try {
-                uploadTags = JSON.parse(uploadTagsRaw);
-            } catch(e) {
-                uploadTags = uploadTagsRaw.split(/[,，]/).map(tag => tag.trim()).filter(tag => tag);
-            }
-        }
+        let uploadTagsRaw = url.searchParams.get('tags') || (context.formdata && context.formdata.get('tags')) || '';
+        let uploadTags = parseTagsInput(uploadTagsRaw);
 
-        // 构建基础metadata
+
         const metadata = {
             FileName: originalFileName,
             FileType: originalFileType,

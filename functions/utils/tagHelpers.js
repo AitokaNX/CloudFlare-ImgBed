@@ -14,8 +14,13 @@ export function validateTag(tag) {
         return false;
     }
 
-    // Allow alphanumeric, underscore, hyphen, and Chinese/Japanese/Korean characters
-    return /^[\w\u4e00-\u9fa5\u3040-\u309f\u30a0-\u30ff\uac00-\ud7af-]+$/.test(tag);
+    const value = tag.trim();
+    if (!value || value.length > 80) {
+        return false;
+    }
+
+    // Tags are comma-separated in upload/search inputs, so commas and controls are unsafe.
+    return !/[,，\r\n\t]/.test(value);
 }
 
 /**
@@ -32,13 +37,19 @@ export function normalizeTags(tags) {
         return [];
     }
 
-    const normalized = tags
-        .filter(tag => tag && typeof tag === 'string')
-        .map(tag => tag.toLowerCase().trim())
-        .filter(tag => validateTag(tag));
+    const result = [];
+    const seen = new Set();
+    for (const tag of tags) {
+        if (!tag || typeof tag !== 'string') continue;
+        const value = tag.trim();
+        if (!validateTag(value)) continue;
+        const key = value.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        result.push(value);
+    }
 
-    // Remove duplicates while preserving order
-    return [...new Set(normalized)];
+    return result;
 }
 
 /**
@@ -161,4 +172,33 @@ export function filterTagsByPrefix(tags, prefix, limit = 20) {
     return tags
         .filter(tag => tag.toLowerCase().startsWith(prefixLower))
         .slice(0, limit);
+}
+
+
+/**
+ * Parse tags from upload/search input. Supports JSON arrays and comma-separated text.
+ * @param {string|string[]} input
+ * @returns {string[]}
+ */
+export function parseTagsInput(input) {
+    if (Array.isArray(input)) {
+        return normalizeTags(input);
+    }
+    if (!input || typeof input !== 'string') {
+        return [];
+    }
+
+    const raw = input.trim();
+    if (!raw) return [];
+
+    try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+            return normalizeTags(parsed);
+        }
+    } catch (error) {
+        // Fall back to comma-separated text.
+    }
+
+    return normalizeTags(raw.split(/[,，]/));
 }

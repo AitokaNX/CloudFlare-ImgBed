@@ -11,6 +11,7 @@ import { DiscordAPI } from "../utils/discordAPI";
 import { HuggingFaceAPI } from "../utils/huggingfaceAPI";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getDatabase } from '../utils/databaseAdapter.js';
+import { parseTagsInput } from '../utils/tagHelpers.js';
 
 
 export async function onRequest(context) {  // Contents of context object
@@ -146,14 +147,8 @@ async function processFileUpload(context, formdata = null) {
 
     // 获取上传标签
     let uploadTagsRaw = url.searchParams.get('tags') || formdata.get('tags') || '';
-    let uploadTags = [];
-    if (uploadTagsRaw) {
-        try {
-            uploadTags = JSON.parse(uploadTagsRaw);
-        } catch(e) {
-            uploadTags = uploadTagsRaw.split(/[,，]/).map(tag => tag.trim()).filter(tag => tag);
-        }
-    }
+    let uploadTags = parseTagsInput(uploadTagsRaw);
+
 
     const metadata = {
         FileName: fileName,
